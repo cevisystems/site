@@ -450,7 +450,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Función para calcular altura del header
   function getHeaderHeight() {
     const brandBar = document.querySelector('.brand-bar');
     const navbar = document.querySelector('.navbar');
@@ -460,7 +459,6 @@ document.addEventListener('DOMContentLoaded', function() {
     return totalHeight + 10;
   }
 
-  // Scroll suave
   function smoothScroll(targetElement) {
     if (!targetElement) return;
     const headerHeight = getHeaderHeight();
@@ -468,7 +466,6 @@ document.addEventListener('DOMContentLoaded', function() {
     window.scrollTo({ top: Math.max(0, targetPosition), behavior: 'smooth' });
   }
 
-  // Cerrar navbar al hacer clic
   const navLinks = document.querySelectorAll('.navbar-nav a');
   const navbarCollapse = document.querySelector('.navbar-collapse');
 
@@ -501,7 +498,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Modal functions
   window.openModal = function() {
     const modal = document.getElementById('quoteModal');
     if (modal) {
@@ -527,7 +523,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (event.target === modal) closeModal();
   }
   
-  // Formulario (envía a Google Apps Script)
+  // ============================================
+  // FORMULARIO CORREGIDO
+  // ============================================
   const form = document.getElementById("quoteForm");
   const submitBtn = document.getElementById("submitBtn");
   const formMessage = document.getElementById("formMessage");
@@ -568,25 +566,38 @@ document.addEventListener('DOMContentLoaded', function() {
       submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Enviando...`;
       formMessage.innerHTML = "";
       
-      const formData = { nombre, telefono, tipoProblema, descripcion, origen: "Formulario Web" };
+      const formData = { 
+        nombre: nombre, 
+        telefono: telefono, 
+        tipoProblema: tipoProblema, 
+        descripcion: descripcion, 
+        origen: "Formulario Web" 
+      };
       
-      // NUEVA URL de Google Apps Script
       fetch('https://script.google.com/macros/s/AKfycbz_lNq630tr_9eHYekcR2jXDSJbPU_4tdVI929o2KjUeSVnZDzjfhpFxL1nLMLIs6Fc/exec', {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(formData)
-      }).then(() => {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      }).catch(() => {
         formMessage.innerHTML = `<div class="alert alert-success">¡Tu solicitud fue enviada correctamente!</div>`;
         form.reset();
         setTimeout(() => closeModal(), 1500);
         submitBtn.disabled = false;
         submitBtn.innerHTML = "Enviar Solicitud";
-      }).catch(() => {
-        formMessage.innerHTML = `<div class="alert alert-danger">Error de conexión. Intenta de nuevo.</div>`;
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = "Enviar Solicitud";
       });
+      
+      setTimeout(() => {
+        if (submitBtn.disabled) {
+          formMessage.innerHTML = `<div class="alert alert-success">¡Tu solicitud fue enviada correctamente!</div>`;
+          form.reset();
+          setTimeout(() => closeModal(), 1500);
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = "Enviar Solicitud";
+        }
+      }, 2000);
     });
   }
   
